@@ -1,5 +1,6 @@
 from paciente import Paciente
 from collections import deque
+import time
 
 
 class SistemaGestionPacientes:
@@ -22,6 +23,7 @@ class SistemaGestionPacientes:
         self.pacientes_atendidos = []
         self.pacientes_dados_de_alta = []
         self.contador_pacientes = 1
+        self.lista_tiempos_espera = []
 
     def Agregar_paciente(self, nombre, condicion) -> Paciente:
         """
@@ -42,8 +44,12 @@ class SistemaGestionPacientes:
             raise ValueError("El nombre y la condición son obligatorios.")
 
         nuevo_paciente = Paciente(self.contador_pacientes, nombre, condicion)
+        
         self.cola_pacientes.append(nuevo_paciente)
         self.contador_pacientes += 1
+
+        tiempo_espera = time.time() - nuevo_paciente.tiempoEntrada
+        self.lista_tiempos_espera.append(tiempo_espera)
         return nuevo_paciente
 
     def Atender_paciente(self) -> Paciente:
