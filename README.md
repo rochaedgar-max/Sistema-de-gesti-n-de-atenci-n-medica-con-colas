@@ -83,3 +83,58 @@ El sistema busca:
 - Reducir tiempos de espera  
 - Priorizar casos urgentes  
 - Facilitar la toma de decisiones mediante datos  
+
+---
+
+# 📝 Convención de Commits
+
+Palabras que se deben usar dependiendo el tipo de cambio:
+
+- feat: Agregar cambios nuevos  
+  Ejemplo:  
+  "feat: Agregar clase Habitacion"
+
+- fix: Corregir errores  
+  Ejemplo:  
+  "fix: Corregir calculo de precio total"
+
+- refactor: Mejoras internas sin cambiar funcionalidad  
+  Ejemplo:  
+  "refactor: Reorganizar logica de reservas"
+
+- docs: Cambios en documentación  
+  Ejemplo:  
+  "docs: Actualizar README"
+
+- style: Cambios de formato (espacios, indentación o nombres)  
+  Ejemplo:  
+  "style: Corregir indentacion en SistemaReservasHotel"
+
+En la descripción del commit se debe agregar TODO lo que se agregó o modificó, incluyendo clases y métodos de manera general.
+
+---
+
+# 🔀 Pull Requests
+
+Regla importante:
+
+En lugar de ":" se usa "/"
+
+Ejemplo:
+
+feat/agregue clase habitacion
+
+En la descripción del Pull Request se debe:
+
+- Especificar el nombre de la clase agregada.
+- Mencionar los métodos agregados.
+- Explicar de manera general qué se agregó al main.
+- Describir los métodos de forma un poco más detallada.
+
+Ejemplo de descripción:
+
+Se agrega clase SistemaReservasHotel con metodos reservar_habitacion, cancelar_reserva y deshacer_cancelacion.  
+Se integra manejo de pilas personalizadas y control de disponibilidad de habitaciones.  
+Se conecta la clase al archivo main para permitir ejecución mediante menú interactivo.
+
+---
