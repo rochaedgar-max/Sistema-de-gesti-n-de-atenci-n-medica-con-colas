@@ -28,7 +28,7 @@ class SistemaGestionPacientes:
         self.pacientes_dados_de_alta = []
         self.contador_pacientes = 1
 
-    def Agregar_paciente(self, nombre, condicion) -> Paciente:
+    def Agregar_paciente(self, nombrePaciente, condicionMedica) -> Paciente:
         """
         Crea un paciente y lo coloca al final de la cola de espera.
 
@@ -42,22 +42,22 @@ class SistemaGestionPacientes:
             es un espacio en blanco.
         """
 
-        nombre = str(nombre).strip()
-        condicion = str(condicion).strip()
+        nombrePaciente = str(nombrePaciente).strip()
+        condicionMedica = str(condicionMedica).strip()
 
-        if not nombre or not condicion:
+        if not nombrePaciente or not condicionMedica:
             return "[Error]: El nombre y la condición son obligatorios.\n"
 
-        if not isinstance(nombre, str) or not isinstance(condicion, str):
+        if not isinstance(nombrePaciente, str) or not isinstance(condicionMedica, str):
             return " [Error]: El nombre o la condición no pueden ser valores enteros.\n"
 
-        if not nombre.replace(" ", "").isalpha():
+        if not nombrePaciente.replace(" ", "").isalpha():
             return " [Error]: El nombre no debe contener números ni simbolos.\n"
 
-        if not condicion.replace(" ", "").isalpha():
+        if not condicionMedica.replace(" ", "").isalpha():
             return " [Error]: La condición no debe contener números ni simbolos.\n"
 
-        nuevo_paciente = Paciente(self.contador_pacientes, nombre, condicion)
+        nuevo_paciente = Paciente(self.contador_pacientes, nombrePaciente, condicionMedica)
         self.cola_pacientes.append(nuevo_paciente)
         self.contador_pacientes += 1
 
