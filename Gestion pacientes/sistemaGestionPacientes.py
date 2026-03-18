@@ -3,6 +3,10 @@ from collections import deque
 import time
 
 
+# Lista global que almacena los tiempos de espera (float) para el cálculo de estadísticas.
+lista_tiempos_espera = []
+
+
 class SistemaGestionPacientes:
     """
     Gestiona el flujo de pacientes desde su ingreso hasta su alta.
@@ -23,7 +27,6 @@ class SistemaGestionPacientes:
         self.pacientes_atendidos = []
         self.pacientes_dados_de_alta = []
         self.contador_pacientes = 1
-        self.lista_tiempos_espera = []
 
     def Agregar_paciente(self, nombre, condicion) -> Paciente:
         """
@@ -35,41 +38,51 @@ class SistemaGestionPacientes:
 
         Returns:
             Paciente: El objeto paciente recien creado.
-
-        Raises:
-            ValueError: Si el nombre o la condición están vacíos.
+            str: Manda un error en caso de que alguno de los datos ingresados es incorrecto o
+            es un espacio en blanco.
         """
 
+        nombre = str(nombre).strip()
+        condicion = str(condicion).strip()
+
         if not nombre or not condicion:
-            raise ValueError("El nombre y la condición son obligatorios.")
+            return "[Error]: El nombre y la condición son obligatorios.\n"
+
+        if not isinstance(nombre, str) or not isinstance(condicion, str):
+            return " [Error]: El nombre o la condición no pueden ser valores enteros.\n"
+
+        if not nombre.replace(" ", "").isalpha():
+            return " [Error]: El nombre no debe contener números ni simbolos.\n"
+
+        if not condicion.replace(" ", "").isalpha():
+            return " [Error]: La condición no debe contener números ni simbolos.\n"
 
         nuevo_paciente = Paciente(self.contador_pacientes, nombre, condicion)
-        
         self.cola_pacientes.append(nuevo_paciente)
         self.contador_pacientes += 1
 
-        tiempo_espera = time.time() - nuevo_paciente.tiempoEntrada
-        self.lista_tiempos_espera.append(tiempo_espera)
         return nuevo_paciente
 
-    def Atender_paciente(self) -> Paciente:
+    def Atender_paciente(self) -> str | Paciente:
         """
         Cambia el estado del objeto paciente y lo coloca en una nueva lista.
 
         Returns:
-            None: La lista se encuentra vacía.
+            str: Manda un aviso si la lista se encuentra vacía.
             Paciente: Objeto paciente.
         """
 
         if not self.cola_pacientes:
-            return None
+            return " [Aviso]: No hay pacientes en espera.\n"
 
         paciente = self.cola_pacientes.popleft()
         paciente.estado = "Siendo atendido"
+        tiempo_espera = time.time() - paciente.tiempoEntrada
+        lista_tiempos_espera.append(tiempo_espera)
         self.pacientes_atendidos.append(paciente)
         return paciente
 
-    def Dar_de_alta(self, numeroIngresado) -> str | Paciente | None:
+    def Dar_de_alta(self, numeroIngresado=None) -> str | Paciente:
         """
         Finaliza la atención de un paciente.
 
@@ -78,12 +91,18 @@ class SistemaGestionPacientes:
 
         Returns:
             Paciente: Si el paciente fue encontrado y dado de alta.
-            str: "repetido" si ya estaba dado de alta o "no_encontrado" si no existe.
+            str: Manda un aviso para indicar si el paciente ya fue dado de alta o si no fue encontrado.
         """
+
+        if numeroIngresado is None:
+            return " [Error]: Debes ingresar el número de ID del paciente para darlo de alta.\n"
+
+        if not isinstance(numeroIngresado, int):
+            return " [Error]: El ID debe ser un número entero.\n"
 
         for p in self.pacientes_dados_de_alta:
             if p.numeroPaciente == numeroIngresado:
-                return "repetido"
+                return f" [Aviso]: El paciente #{numeroIngresado} ya fue dado de alta.\n"
 
         for i, paciente in enumerate(self.pacientes_atendidos):
             if paciente.numeroPaciente == numeroIngresado:
@@ -92,7 +111,7 @@ class SistemaGestionPacientes:
                 self.pacientes_atendidos.pop(i)
                 return paciente
 
-        return "no_encontrado"
+        return " [Aviso]: El número de paciente ingresado no fue encontrado.\n"
 
     def obtener_lista_espera(self) -> list[Paciente]:
         """
