@@ -1,6 +1,8 @@
 import time
 from collections import deque
 
+from sistema_gestion import lista_tiempos_espera
+
 class SistemaEstadisticas:
     """
     Sistema de estadisticas para el hospital.
@@ -31,27 +33,17 @@ class SistemaEstadisticas:
     def calcular_tiempo_espera_promedio(self):
         """
         Calcula el tiempo promedio que los pacientes esperan para ser atendidos.
-        Usa los tiempos de atención registrados.
+        Usa la lista global de tiempos de espera de la primera rama.
         
         Returns:
             float: Tiempo promedio en segundos, 0 si no hay datos.
         """
-        pacientes_atendidos = self.sistema.pacientes_dados_de_alta
+        global lista_tiempos_espera
         
-        if not pacientes_atendidos:
+        if not lista_tiempos_espera:
             return 0
             
-        tiempos_espera = []
-        for paciente in pacientes_atendidos:
-            # Buscamos si tenemos registro de cuando empezo su atención
-            if paciente.numeroPaciente in self.tiempos_inicio_atencion:
-                tiempo_espera = self.tiempos_inicio_atencion[paciente.numeroPaciente] - paciente.tiempoEntrada
-                tiempos_espera.append(tiempo_espera)
-        
-        if not tiempos_espera:
-            return 0
-            
-        return sum(tiempos_espera) / len(tiempos_espera)
+        return sum(lista_tiempos_espera) / len(lista_tiempos_espera)
     
     def calcular_tiempo_atencion_promedio(self):
         """
@@ -70,7 +62,7 @@ class SistemaEstadisticas:
             paciente_actual = self.sistema.pacientes_dados_de_alta[i]
             paciente_anterior = self.sistema.pacientes_dados_de_alta[i-1]
             
-            # Estimamos que la atencion del actual comenzo cuando termio el anterior
+            # Estimamos que la atencion del actual comenzo cuando termino el anterior
             if paciente_actual.numeroPaciente in self.tiempos_inicio_atencion:
                 fin_estimado = paciente_actual.tiempoEntrada + 300  # 5 min estimado
                 tiempo_atencion = fin_estimado - self.tiempos_inicio_atencion[paciente_actual.numeroPaciente]
@@ -137,6 +129,16 @@ class SistemaEstadisticas:
         horas = tiempo_transcurrido / 3600
         return len(self.sistema.pacientes_dados_de_alta) / horas if horas > 0 else 0
     
+    def obtener_tiempos_espera_historicos(self):
+        """
+        Retorna la lista completa de tiempos de espera.
+        
+        Returns:
+            list: Lista de tiempos de espera en segundos.
+        """
+        global lista_tiempos_espera
+        return lista_tiempos_espera.copy()
+    
     def generar_reporte(self):
         """
         Genera un reporte completo de estadisticas del hospital.
@@ -165,14 +167,17 @@ class SistemaEstadisticas:
    • Pacientes siendo atendidos: {conteo_estados["Siendo atendido"]}
    • Pacientes dados de alta: {conteo_estados["Dado de alta"]}
    • Total pacientes registrados: {sum(conteo_estados.values())}
-  TIEMPOS PROMEDIO:
+   
+ TIEMPOS PROMEDIO:
    • Tiempo de espera: {espera_prom:.2f} segundos ({espera_prom_min:.2f} minutos)
    • Tiempo de atención: {atencion_prom:.2f} segundos ({atencion_prom_min:.2f} minutos)
    • Tiempo total en hospital: {total_prom:.2f} segundos ({total_prom_min:.2f} minutos)
- ESTADÍSTICAS DE FLUJO:
+   
+ ESTADISTICAS DE FLUJO:
    • Pacientes por hora: {pacientes_por_hora:.2f}
    • Tiempo entre llegadas: {60/pacientes_por_hora if pacientes_por_hora > 0 else 0:.2f} minutos
-  EFICIENCIA DEL SISTEMA:
+   
+ EFICIENCIA DEL SISTEMA:
    • Ocupacion estimada: {(conteo_estados["Siendo atendido"] / max(1, conteo_estados["Siendo atendido"] + conteo_estados["En espera"]) * 100):.2f}%
    • Pacientes atendidos vs total: {(conteo_estados["Dado de alta"] / max(1, sum(conteo_estados.values())) * 100):.2f}%
 
